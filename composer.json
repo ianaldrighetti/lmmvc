@@ -1,0 +1,27 @@
+{
+    "name": "ianaldrighetti/lmmvc",
+    "description": "A Lean, Mean MVC Machine!",
+    "type": "library",
+    "keywords": ["php", "mvc", "lightweight", "small mvc"],
+    "homepage": "https://github.com/ianaldrighetti/lmmvc",
+    "license": "MS-RL",
+    "authors": [
+        {
+            "name": "Ian Aldrighetti",
+            "email": "ianaldrighetti@outlook.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/ianaldrighetti/lmmvc/issues",
+        "wiki": "https://github.com/ianaldrighetti/lmmvc/wiki"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "LmMvc\\": "./"
+        }
+    }
+}
