@@ -3,6 +3,7 @@ namespace LmMvc;
 
 use LmMvc\Exception\ControllerException;
 use LmMvc\Exception\MalformedUriException;
+use LmMvc\Exception\PageNotFound;
 
 /**
  * Class Application
@@ -120,6 +121,10 @@ class Application
     /**
      * Runs the application by inspecting the request URI and determining which controller to load and which method to
      * invoke.
+     *
+     * @throws Exception\MalformedUriException
+     * @throws Exception\ControllerException
+     * @throws Exception\PageNotFound
      */
     public function run()
     {
@@ -134,20 +139,62 @@ class Application
 
         // Now we need to load the controller.
         $controller = $this->getControllerInstance($app['controller']);
+
+        // Now that we have the controller, let's find out if the action (method) we want to execute is valid.
+        $methodObject = $this->getMethodObject($controller, $app['method']);
+
+    }
+
+    /**
+     * Returns a ReflectionMethod if the method exists in the controller.
+     *
+     * @param BaseController $controller
+     * @param string $methodName
+     * @throws Exception\PageNotFound
+     * @return \ReflectionMethod
+     */
+    public function getMethodObject(BaseController $controller, $methodName)
+    {
+        $reflector = new \ReflectionClass($controller);
+
+        try
+        {
+            $methodObject = $reflector->getMethod($methodName);
+        }
+        catch (\ReflectionException $ex)
+        {
+            throw new PageNotFound(
+                sprintf(
+                    'The method "%s" was not found in the "%s" controller.',
+                    htmlspecialchars($methodName),
+                    htmlspecialchars(get_class($controller))
+                )
+            );
+        }
+
+        return $methodObject;
     }
 
     /**
      * Creates an instance of the specified controller. It must inherit BaseController or an exception will be thrown.
-     * 
+     *
      * @param string $controllerName The name of the controller to create an instance of.
      * @throws Exception\ControllerException
+     * @throws Exception\PageNotFound
      * @return BaseController
      */
     public function getControllerInstance($controllerName)
     {
         $controllerName = $this->getNamespace(). '\\'. $controllerName;
 
-        // TODO: Register an error handler to determine if autoloading failed (then restore the old one, of course!).
+        // Check if the class can be loaded.
+        if (!class_exists($controllerName))
+        {
+            throw new PageNotFound(
+                sprintf('The controller "%s" could not be autoloaded.', htmlspecialchars($controllerName))
+            );
+        }
+
         // Now, create an instance of the controller. At least, attempt to.
         $controller = new $controllerName();
 
@@ -155,7 +202,7 @@ class Application
         if (!is_subclass_of($controller, '\\LmMvc\\BaseController'))
         {
             throw new ControllerException(
-                sprintf('The controller "%s" could not be autoloaded.', htmlspecialchars($controllerName))
+                sprintf('The controller "%s" does not inherit BaseController.', htmlspecialchars($controllerName))
             );
         }
         // Otherwise, return it.
