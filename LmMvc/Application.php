@@ -1,6 +1,7 @@
 <?php
 namespace LmMvc;
 
+use LmMvc\Exception\ControllerException;
 use LmMvc\Exception\MalformedUriException;
 
 /**
@@ -62,6 +63,12 @@ class Application
      */
     public function setNamespace($controllerNamespace)
     {
+        // If it has a trailing \, remove it.
+        if (substr($controllerNamespace, -1, 1) == '\\')
+        {
+            $controllerNamespace = substr($controllerNamespace, 0, strlen($controllerNamespace) - 1);
+        }
+
         $this->controllerNamespace = $controllerNamespace;
     }
 
@@ -124,6 +131,35 @@ class Application
 
         // Now we need to check to make sure that the request URI matches how it should appear ideally.
         $this->compareRequestUri($requestUri, $app);
+
+        // Now we need to load the controller.
+        $controller = $this->getControllerInstance($app['controller']);
+    }
+
+    /**
+     * Creates an instance of the specified controller. It must inherit BaseController or an exception will be thrown.
+     * 
+     * @param string $controllerName The name of the controller to create an instance of.
+     * @throws Exception\ControllerException
+     * @return BaseController
+     */
+    public function getControllerInstance($controllerName)
+    {
+        $controllerName = $this->getNamespace(). '\\'. $controllerName;
+
+        // TODO: Register an error handler to determine if autoloading failed (then restore the old one, of course!).
+        // Now, create an instance of the controller. At least, attempt to.
+        $controller = new $controllerName();
+
+        // It must extend BaseController.
+        if (!is_subclass_of($controller, '\\LmMvc\\BaseController'))
+        {
+            throw new ControllerException(
+                sprintf('The controller "%s" could not be autoloaded.', htmlspecialchars($controllerName))
+            );
+        }
+        // Otherwise, return it.
+        return $controller;
     }
 
     /**
@@ -134,7 +170,97 @@ class Application
      */
     public function compareRequestUri($requestUri, array $app)
     {
+        // Lower case the controller and the method name.
+        $app['controller'] = strtolower($app['controller']);
+        $app['method'] = strtolower($app['method']);
 
+        //  What should it be, ideally?
+        $idealUri = '/'. $app['controller']. '/'. $app['method'].
+            (strlen($app['query_string']) > 0 ? '?'. $app['query_string'] : '');
+
+        // Does it match?
+        if ($requestUri == $idealUri)
+        {
+            // It's all good!
+            return;
+        }
+
+        // If the controller is the default controller, it can be omitted.
+        $idealUri = '/'. $app['method']. (strlen($app['query_string']) > 0 ? '?'. $app['query_string'] : '');
+
+        // Make sure the controller is the default one and that they match.
+        if (strtolower($this->getDefaultController()) == $app['controller'] && $requestUri == $idealUri)
+        {
+            return;
+        }
+
+        // Finally, it could be completely empty (we're going to require that anything with a query string contain
+        // the method name, at least)...
+        $idealUri = '/';
+
+        if (strtolower($this->getDefaultController()) == $app['controller'] && 'index' == $app['method'] &&
+            $requestUri == $idealUri)
+        {
+            return;
+        }
+
+        // It looks like nothing worked, so...
+        $idealUri = (strtolower($this->getDefaultController()) != $app['controller'] ? '/'. $app['controller'] : '').
+            '/'. $app['method']. (strlen($app['query_string']) > 0 ? '?'. $app['query_string'] : '');
+
+        // Now, redirect!
+        $this->redirect($idealUri);
+    }
+
+    /**
+     * Redirects to the specified URI.
+     *
+     * @param string $uri The URI to redirect to.
+     * @param int $status The status to send (301 for Moved Permanently or 307 for Temporary Redirect).
+     */
+    public function redirect($uri, $status = 301)
+    {
+        // Did we send anything yet?
+        if(ob_get_length() > 0)
+        {
+            // Well, if there are any.
+            @ob_clean();
+        }
+
+        // We only accept 301 or 307.
+        if (!in_array($status, array(301, 307)))
+        {
+            // Default to temporary.
+            $status = 307;
+        }
+
+        // We may need to change the status if we are getting POST data...
+        $status = count($_POST) > 0 ? 303 : (int)$status;
+
+        // Output the right header.
+        switch($status)
+        {
+            case 301:
+                header('HTTP/1.0 301 Moved Permanently');
+                break;
+
+            case 303:
+                header('HTTP/1.1 303 See Other');
+                break;
+
+            case 307:
+                header('HTTP/1.1 307 Temporary Redirect');
+                break;
+        }
+
+        // Don't cache this!
+        header('Cache-Control: no-cache');
+
+        // Now redirect to the location of your desire!
+        header('Location: '. $uri);
+
+        // Don't do anything else.
+        exit;
     }
 
     /**
@@ -176,7 +302,9 @@ class Application
         $components = explode('/', $requestUri, 2);
 
         // Determine the method. If the second component is empty, then that means there is no controller defined.
-        $method = $this->cleanMethodName(isset($components[1]) ? $components[1] : $components[0]);
+        $method = $this->cleanMethodName(
+            isset($components[1]) ? $components[1] : (isset($components[0]) ? $components[0] : 'index')
+        );
 
         // Now for the controller. We may need to use the default.
         $controller = isset($components[1]) ? $components[0] : $this->getDefaultController();
