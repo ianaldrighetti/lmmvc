@@ -285,5 +285,39 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             )
         );
     }
+
+    /**
+     * Tests the exceptions thrown by getController.
+     *
+     * @param string $requestUri
+     * @param string $expectedMessage
+     * @dataProvider getControllerExceptionData
+     */
+    public function testGetControllerException($requestUri, $expectedMessage)
+    {
+        $this->setExpectedException('\\LmMvc\\Exception\\MalformedUriException', $expectedMessage);
+        $this->application->getController($requestUri);
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllerExceptionData()
+    {
+        return array(
+            array(
+                'doesntStartWithSlash/index',
+                'The request URI "doesntStartWithSlash/index" is malformed and could not be parsed.'
+            ),
+            array(
+                '/invalid!controller/test',
+                'The request URI was malformed: the controller "invalid!controller" is invalid.'
+            ),
+            array(
+                '/controllerName/1invalidMethod',
+                'The request URI was malformed: the method "1invalidMethod" is invalid.'
+            )
+        );
+    }
 }
  
