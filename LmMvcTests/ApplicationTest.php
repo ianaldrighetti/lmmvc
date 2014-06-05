@@ -321,6 +321,9 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * Tests the redirect method.
+     */
     public function testRedirect()
     {
         // We need to control the Header Wrapper, and disable it.
@@ -336,6 +339,22 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($headerWrapper->headerExists('Location'));
         $this->assertEquals($requestUri, $headerWrapper->getHeader('Location'));
         $this->assertEquals(301, $headerWrapper->getStatusCode());
+
+        // Let's check a couple others.
+        $this->application->redirect($requestUri, 307);
+        $this->assertEquals(307, $headerWrapper->getStatusCode());
+
+        // Now, if there is POST data, a 303 should be sent.
+        $GLOBALS['_POST'] = array_fill(0, 10, 'test');
+        $this->application->redirect($requestUri);
+        $this->assertEquals(303, $headerWrapper->getStatusCode());
+
+        // Be sure to empty it.
+        $GLOBALS['_POST'] = array();
+
+        // Default to a Temporary Redirect (307) if the status code is unknown (not 301 or 307).
+        $this->application->redirect($requestUri, 3000);
+        $this->assertEquals(307, $headerWrapper->getStatusCode());
     }
 }
  
