@@ -8,7 +8,7 @@
          strict="false" verbose="true">
     <testsuites>
         <testsuite name="LMMVC Test Suite">
-            <directory>./LmMvc/</directory>
+            <directory>./LmMvcTests/</directory>
         </testsuite>
     </testsuites>
     <filter>
