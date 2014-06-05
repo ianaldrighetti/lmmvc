@@ -9,7 +9,7 @@
     </testsuites>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory>../LmMvc</directory>
+            <directory>./LmMvc</directory>
             <!--<exclude>
                 <directory>../LmMvc/Exception</directory>
             </exclude>-->

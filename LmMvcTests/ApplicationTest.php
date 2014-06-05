@@ -356,5 +356,48 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->application->redirect($requestUri, 3000);
         $this->assertEquals(307, $headerWrapper->getStatusCode());
     }
+
+    /**
+     * Tests the compareRequestUri method.
+     */
+    public function testTest()
+    {
+        foreach ($this->compareRequestUriDataProvider() as $params)
+        {
+            list ($requestUri, $controllerName, $methodName, $queryString, $headersExpected) = $params;
+
+            $headerWrapper = new HeaderWrapper();
+            $headerWrapper->setEnabled(false);
+            $this->application->setHeaderWrapper($headerWrapper);
+
+            $this->application->setDefaultController('default');
+            $this->application->compareRequestUri($requestUri, array(
+                    'controller' => $controllerName,
+                    'method' => $methodName,
+                    'query_string' => $queryString,
+                ));
+
+            $this->assertEquals(
+                !empty($headersExpected),
+                $headerWrapper->getSent(),
+                'For: '. $requestUri. ' (Location: '. $headerWrapper->getHeader('Location'). ')'
+            );
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function compareRequestUriDataProvider()
+    {
+        return array(
+            array(
+                '/controller/method', 'controller', 'method', '', false
+            ),
+            array(
+                '/methodindefault', 'default', 'methodInDefault', '', false
+            )
+        );
+    }
 }
  
