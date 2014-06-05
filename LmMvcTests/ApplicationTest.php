@@ -319,5 +319,12 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             )
         );
     }
+
+    public function testRedirect()
+    {
+        $requestUri = '/where/to';
+        $this->application->redirect($requestUri);
+        print_r(headers_list());
+    }
 }
  
