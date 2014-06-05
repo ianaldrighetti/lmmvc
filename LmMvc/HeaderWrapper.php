@@ -41,6 +41,12 @@ class HeaderWrapper
     private $enabled;
 
     /**
+     * Indicates whether headers have been sent.
+     * @var bool
+     */
+    private $sent;
+
+    /**
      * Initializes the Header Wrapper.
      */
     public function __construct()
@@ -50,6 +56,7 @@ class HeaderWrapper
         $this->httpVersion = 1.0;
         $this->enabled = true;
         $this->headers = array();
+        $this->sent = false;
     }
 
     /**
@@ -212,6 +219,9 @@ class HeaderWrapper
      */
     public function send()
     {
+        // We will set this even if they aren't really sent.
+        $this->sent = true;
+
         // If this isn't enabled, quit.
         if (!$this->getEnabled())
         {

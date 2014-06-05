@@ -40,6 +40,12 @@ class Application
     private $exceptionHandler;
 
     /**
+     * An instance of the Header Wrapper class.
+     * @var HeaderWrapper
+     */
+    private $headerWrapper;
+
+    /**
      * Sets up the application with the namespace the controllers belong to.
      *
      * @param string $defaultController The default controller to use if none is specified in the request URI (do not
@@ -53,10 +59,36 @@ class Application
         ExceptionHandler $exceptionHandler = null
     )
     {
+        $this->headerWrapper = null;
         $this->setRequestUri(null);
         $this->setDefaultController($defaultController);
         $this->setNamespace($controllerNamespace);
         $this->setExceptionHandler(is_null($exceptionHandler) ? new DefaultExceptionHandler() : $exceptionHandler);
+    }
+
+    /**
+     * Returns an instance of the Header Wrapper class.
+     *
+     * @return HeaderWrapper
+     */
+    public function getHeaderWrapper()
+    {
+        if (is_null($this->headerWrapper))
+        {
+            $this->headerWrapper = new HeaderWrapper();
+        }
+
+        return $this->headerWrapper;
+    }
+
+    /**
+     * Sets an instance of a Header Wrapper.
+     *
+     * @param HeaderWrapper $headerWrapper
+     */
+    public function setHeaderWrapper(HeaderWrapper $headerWrapper)
+    {
+        $this->headerWrapper = $headerWrapper;
     }
 
     /**
@@ -431,6 +463,9 @@ class Application
             @ob_clean();
         }
 
+        // Get the Header Wrapper (this allows another instance of Header Wrapper to be set for testing purposes).
+        $headerWrapper = $this->getHeaderWrapper();
+
         // We only accept 301 or 307.
         if (!in_array($status, array(301, 307)))
         {
@@ -445,23 +480,26 @@ class Application
         switch($status)
         {
             case 301:
-                header('HTTP/1.0 301 Moved Permanently');
+                $headerWrapper->setStatusCode(301, 'Moved Permanently', 1.0);
                 break;
 
             case 303:
-                header('HTTP/1.1 303 See Other');
+                $headerWrapper->setStatusCode(303, 'See Other', 1.1);
                 break;
 
             case 307:
-                header('HTTP/1.1 307 Temporary Redirect');
+                $headerWrapper->setStatusCode(307, 'Temporary Redirect', 1.1);
                 break;
         }
 
         // Don't cache this!
-        header('Cache-Control: no-cache');
+        $headerWrapper->add('Cache-Control', 'no-cache');
 
         // Now redirect to the location of your desire!
-        header('Location: '. $uri);
+        $headerWrapper->add('Location', $uri);
+
+        // Now send them.
+        $headerWrapper->send();
 
         // Don't do anything else.
         exit;
