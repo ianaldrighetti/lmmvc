@@ -237,4 +237,14 @@ class HeaderWrapper
             header($header. ': '. $value);
         }
     }
+
+    /**
+     * Returns whether headers have been sent.
+     *
+     * @return bool
+     */
+    public function getSent()
+    {
+        return $this->sent;
+    }
 } 

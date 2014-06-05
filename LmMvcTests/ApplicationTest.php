@@ -3,6 +3,7 @@ namespace LmMvcTests;
 
 use LmMvc\Application;
 use LmMvc\DefaultExceptionHandler;
+use LmMvc\HeaderWrapper;
 use LmMvcTests\Mock\MockController;
 
 /**
@@ -322,9 +323,19 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function testRedirect()
     {
+        // We need to control the Header Wrapper, and disable it.
+        $headerWrapper = new HeaderWrapper();
+        $headerWrapper->setEnabled(false);
+        $this->application->setHeaderWrapper($headerWrapper);
+
         $requestUri = '/where/to';
         $this->application->redirect($requestUri);
-        print_r(headers_list());
+
+        // Make sure everything is set.
+        $this->assertTrue($headerWrapper->getSent());
+        $this->assertTrue($headerWrapper->headerExists('Location'));
+        $this->assertEquals($requestUri, $headerWrapper->getHeader('Location'));
+        $this->assertEquals(301, $headerWrapper->getStatusCode());
     }
 }
  

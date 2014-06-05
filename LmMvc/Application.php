@@ -501,7 +501,13 @@ class Application
         // Now send them.
         $headerWrapper->send();
 
-        // Don't do anything else.
+        // If we're testing, don't keep going.
+        if (!$headerWrapper->getEnabled())
+        {
+            return;
+        }
+
+        // Exit!
         exit;
     }
 
