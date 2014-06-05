@@ -2,7 +2,7 @@
 namespace LmMvc;
 
 /**
- * Class BaseController
+ * Interface BaseController
  *
  * A base controller class that all controllers are to extend. The controller name and then the method is a component of
  * the URL being accessed. For example, say you have address http://www.example.com/register/activate. This would mean
@@ -10,7 +10,7 @@ namespace LmMvc;
  *
  * @package LmMvc
  */
-abstract class BaseController
+interface BaseController
 {
     /**
      * Every controller must at least create an action called index. This is the default page which will be shown if no
@@ -18,5 +18,5 @@ abstract class BaseController
      *
      * @return void
      */
-    abstract public function index();
+    public function index();
 }

@@ -3,6 +3,7 @@ namespace LmMvcTests;
 
 use LmMvc\Application;
 use LmMvc\DefaultExceptionHandler;
+use LmMvcTests\Mock\MockController;
 
 /**
  * Class ApplicationTest
@@ -180,6 +181,109 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
         // _REQUEST should be $_GET and $_POST merged.
         $this->assertEquals(array_merge($GLOBALS['_GET'], $GLOBALS['_POST']), $GLOBALS['_REQUEST']);
+    }
+
+    /**
+     * Tests getting a ReflectionMethod object from the getMethodObject method.
+     */
+    public function testGetMethodObject()
+    {
+        $mockController = new MockController();
+        $methodObject = $this->application->getMethodObject($mockController, 'methodWithParams');
+        $this->assertInstanceOf('\\ReflectionMethod', $methodObject);
+    }
+
+    /**
+     * Tests to ensure the PageNotFound exception is thrown when a method doesn't exist in a controller.
+     *
+     * @expectedException \LmMvc\Exception\PageNotFound
+     * @expectedExceptionMessage The method "doesntExist" was not found in the "LmMvcTests\Mock\MockController"
+     *                           controller.
+     */
+    public function testGetMethodObjectException()
+    {
+        $mockController = new MockController();
+        $this->application->getMethodObject($mockController, 'doesntExist');
+    }
+
+    /**
+     * Tests getting the method arguments array for a reflected method.
+     */
+    public function testGetMethodArgs()
+    {
+        // Note: The arguments aren't indexed with the name of the parameter.
+        $expectedArgs = array(
+            0 => 321,
+            1 => array('test'),
+            2 => '123',
+        );
+
+        // We're going to set the userId to 321 in $_GET (but be sure nothing else is in there).
+        $GLOBALS['_GET'] = array(
+            'userId' => 321,
+            'data' => 'test',
+        );
+
+        $mockController = new MockController();
+        $methodObject = $this->application->getMethodObject($mockController, 'methodWithParams');
+        $methodArgs = $this->application->getMethodArgs($methodObject);
+
+        // Did it work?
+        $this->assertEquals($expectedArgs, $methodArgs);
+    }
+
+    /**
+     * Tests most important component of LMMVC, which is determining the controller, method and query string from the
+     * request URI.
+     *
+     * @param string $requestUri
+     * @param string $controllerName
+     * @param string $methodName
+     * @param string $queryString
+     * @dataProvider getControllerDataProvider
+     */
+    public function testGetController($requestUri, $controllerName, $methodName, $queryString)
+    {
+        // We will need to set a default controller.
+        $this->application->setDefaultController('default');
+
+        // Parse the request URI.
+        $app = $this->application->getController($requestUri);
+
+        // Make sure it all works.
+        $this->assertEquals($controllerName, $app['controller']);
+        $this->assertEquals($methodName, $app['method']);
+        $this->assertEquals($queryString, $app['query_string']);
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllerDataProvider()
+    {
+        return array(
+            array(
+                '/user/login', 'user', 'login', ''
+            ),
+            array(
+                '/register/index', 'register', 'index', ''
+            ),
+            array(
+                '/register/activate?id=100&code=abcd', 'register', 'activate', 'id=100&code=abcd',
+            ),
+            array(
+                '/index', 'default', 'index', ''
+            ),
+            array(
+                '/somethingElse', 'default', 'somethingElse', '',
+            ),
+            array(
+                '/inDefault?id=1&name=someone&code=abc', 'default', 'inDefault', 'id=1&name=someone&code=abc'
+            ),
+            array(
+                '/?id=1&name=you', 'default', 'index', 'id=1&name=you'
+            )
+        );
     }
 }
  

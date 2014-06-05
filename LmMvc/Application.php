@@ -269,7 +269,7 @@ class Application
                 ($param->isArray() ? array() : null);
 
             // If it's null, check if there was a predefined default. If so, use that.
-            if (!array_key_exists($param->getName(), $_GET) && !$param->isOptional())
+            if (!array_key_exists($param->getName(), $_GET) && $param->isOptional())
             {
                 $value = $param->getDefaultValue();
             }
@@ -507,7 +507,7 @@ class Application
 
         // Determine the method. If the second component is empty, then that means there is no controller defined.
         $method = $this->cleanMethodName(
-            isset($components[1]) ? $components[1] : (isset($components[0]) ? $components[0] : 'index')
+            !empty($components[1]) ? $components[1] : (!empty($components[0]) ? $components[0] : 'index')
         );
 
         // Now for the controller. We may need to use the default.
