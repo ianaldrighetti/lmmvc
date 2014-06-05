@@ -47,12 +47,16 @@ class Application
      * @param string $controllerNamespace The controller namespace.
      * @param ExceptionHandler $exceptionHandler An instance of an exception handler.
      */
-    public function __construct($defaultController, $controllerNamespace, ExceptionHandler $exceptionHandler = null)
+    public function __construct(
+        $defaultController = null,
+        $controllerNamespace = null,
+        ExceptionHandler $exceptionHandler = null
+    )
     {
         $this->setRequestUri(null);
         $this->setDefaultController($defaultController);
         $this->setNamespace($controllerNamespace);
-        $this->setExceptionHandler($exceptionHandler);
+        $this->setExceptionHandler(is_null($exceptionHandler) ? new DefaultExceptionHandler() : $exceptionHandler);
     }
 
     /**
@@ -97,6 +101,12 @@ class Application
         if (substr($controllerNamespace, -1, 1) == '\\')
         {
             $controllerNamespace = substr($controllerNamespace, 0, strlen($controllerNamespace) - 1);
+        }
+
+        // Also make sure that it starts with a slash.
+        if (substr($controllerNamespace, 0, 1) != '\\')
+        {
+            $controllerNamespace = '\\'. $controllerNamespace;
         }
 
         $this->controllerNamespace = $controllerNamespace;
