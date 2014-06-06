@@ -51,19 +51,17 @@ class Application
      * @param string $defaultController The default controller to use if none is specified in the request URI (do not
      *                                  include the namespace).
      * @param string $controllerNamespace The controller namespace.
-     * @param ExceptionHandler $exceptionHandler An instance of an exception handler.
      */
-    public function __construct(
-        $defaultController = null,
-        $controllerNamespace = null,
-        ExceptionHandler $exceptionHandler = null
-    )
+    public function __construct($defaultController = null, $controllerNamespace = null)
     {
+        // Set a couple things to null.
+        $this->requestUri = null;
+        $this->exceptionHandler = null;
         $this->headerWrapper = null;
-        $this->setRequestUri(null);
+
+        // Set some other things.
         $this->setDefaultController($defaultController);
         $this->setNamespace($controllerNamespace);
-        $this->setExceptionHandler(is_null($exceptionHandler) ? new DefaultExceptionHandler() : $exceptionHandler);
     }
 
     /**
@@ -98,6 +96,12 @@ class Application
      */
     public function getExceptionHandler()
     {
+        // If it is null, use the default.
+        if (is_null($this->exceptionHandler))
+        {
+            $this->exceptionHandler = new DefaultExceptionHandler();
+        }
+
         return $this->exceptionHandler;
     }
 
@@ -230,12 +234,6 @@ class Application
     {
         // Now we need to get the exception handler.
         $exceptionHandler = $this->getExceptionHandler();
-
-        // If it is null, use the default.
-        if (is_null($exceptionHandler))
-        {
-            $exceptionHandler = new DefaultExceptionHandler();
-        }
 
         // Invoke and die.
         $exceptionHandler->handle($ex, !empty($internal));

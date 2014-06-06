@@ -5,6 +5,7 @@ use LmMvc\Application;
 use LmMvc\DefaultExceptionHandler;
 use LmMvc\HeaderWrapper;
 use LmMvcTests\Mock\MockController;
+use LmMvcTests\Mock\MockExceptionHandler;
 
 /**
  * Class ApplicationTest
@@ -322,6 +323,14 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests to ensure that getHeaderWrapper returns an instance of HeaderWrapper.
+     */
+    public function testGetHeaderWrapper()
+    {
+        $this->assertInstanceOf('\\LmMvc\\HeaderWrapper', $this->application->getHeaderWrapper());
+    }
+
+    /**
      * Tests the redirect method.
      */
     public function testRedirect()
@@ -380,7 +389,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(
                 !empty($headersExpected),
                 $headerWrapper->getSent(),
-                'For: '. $requestUri. ' (Location: '. $headerWrapper->getHeader('Location'). ')'
+                'Unexpected result for: '. $requestUri. ' (Location: '. $headerWrapper->getHeader('Location'). ')'
             );
         }
     }
@@ -396,8 +405,35 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 '/methodindefault', 'default', 'methodInDefault', '', false
+            ),
+            array(
+                '/MyController/MethodName?query=what', 'mycontroller', 'methodname', 'query=what', true
+            ),
+            array(
+                '/', 'default', 'index', '', false
             )
         );
+    }
+
+    /**
+     * Tests the showExceptionPage method.
+     */
+    public function testShowExceptionPage()
+    {
+        // Set the mock exception handler.
+        $mockExceptionHandler = new MockExceptionHandler();
+        $this->application->setExceptionHandler($mockExceptionHandler);
+
+        // Setup the exception to page it.
+        $exception = new \Exception('This is an exception message!', 123);
+        $internal = false;
+
+        // Now show the exception page.
+        $this->application->showExceptionPage($exception, $internal);
+
+        // Make sure it was called.
+        $this->assertEquals($exception, $mockExceptionHandler->getException());
+        $this->assertEquals($internal, $mockExceptionHandler->getInternal());
     }
 }
  
