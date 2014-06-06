@@ -196,9 +196,9 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests to ensure the PageNotFound exception is thrown when a method doesn't exist in a controller.
+     * Tests to ensure the PageNotFoundException exception is thrown when a method doesn't exist in a controller.
      *
-     * @expectedException \LmMvc\Exception\PageNotFound
+     * @expectedException \LmMvc\Exception\PageNotFoundException
      * @expectedExceptionMessage The method "doesntExist" was not found in the "LmMvcTests\Mock\MockController"
      *                           controller.
      */
@@ -457,6 +457,57 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     public function testSetControllerCaserException()
     {
         $this->application->setControllerCaser('thisdefinitelyisntcallable3290!');
+    }
+
+    /**
+     * Tests getting an instance of a controller.
+     */
+    public function testGetControllerInstance()
+    {
+        $controllerName = 'mock_controller';
+
+        // Set the namesapce.
+        $this->application->setNamespace('\\LmMvcTests\\Mock');
+        $controller = $this->application->getControllerInstance($controllerName);
+
+        // It should have loaded the MockController controller.
+        $this->assertInstanceOf($this->application->getNamespace(). '\\MockController', $controller);
+    }
+
+    /**
+     * Tests the handling of the controller caser throwing an exception. This relies on ControllerCaser::camelCase
+     * throwing an Exception because the controller name has more than one underscore in a row.
+     *
+     * @expectedException \LmMvc\Exception\PageNotFoundException
+     * @expectedExceptionMessage The controller "bad___controller" could not be processed by the controller caser.
+     */
+    public function testGetControllerInstanceNotProcessableException()
+    {
+        $this->application->getControllerInstance('bad___controller');
+    }
+
+    /**
+     * Tests getControllerInstance throwing a PageNotFoundException exception because the controller couldn't be
+     * autoloaded (i.e. it doesn't exist).
+     *
+     * @expectedException \LmMvc\Exception\PageNotFoundException
+     * @expectedExceptionMessage The controller "\\BadController" could not be autoloaded.
+     */
+    public function testGetControllerInstanceAutoloadException()
+    {
+        $this->application->getControllerInstance('bad_controller');
+    }
+
+    /**
+     * Tests getControllerInstance throwing a ControllerException when the controller loaded doesn't inherit
+     * BaseController.
+     *
+     * @expectedException \LmMvc\Exception\ControllerException
+     */
+    public function testGetControllerInstanceBaseControllerException()
+    {
+        $this->application->setNamespace('\\LmMvcTests\\Mock');
+        $this->application->getControllerInstance('MockExceptionHandler');
     }
 }
  

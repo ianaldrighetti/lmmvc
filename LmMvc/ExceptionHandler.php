@@ -16,7 +16,7 @@ interface ExceptionHandler
      * or another:
      *      ControllerException - Thrown if a controller does not implement BaseController.
      *      MalformedUriException - Thrown if the URI was malformed and could not be processed.
-     *      PageNotFound - Thrown if the page was not found (as in, the controller could not be found, the method
+     *      PageNotFoundException - Thrown if the page was not found (as in, the controller could not be found, the method
      *                     doesn't exist, etc.).
      *
      * @param \Exception $ex The exception thrown.

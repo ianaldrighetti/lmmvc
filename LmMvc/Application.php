@@ -3,7 +3,7 @@ namespace LmMvc;
 
 use LmMvc\Exception\ControllerException;
 use LmMvc\Exception\MalformedUriException;
-use LmMvc\Exception\PageNotFound;
+use LmMvc\Exception\PageNotFoundException;
 
 /**
  * Class Application
@@ -95,7 +95,7 @@ class Application
      * LMMVC defaults to camelCaseWithFirstUpper.
      *
      * A callback may throw an Exception if the controller name cannot be processed, for whatever reason. This will
-     * then cause a PageNotFound Exception to be thrown by Application. For example, camelCase and
+     * then cause a PageNotFoundException Exception to be thrown by Application. For example, camelCase and
      * camelCaseWithFirstUpper throws an Exception if there is more than one underscore together. This is because
      * otherwise the page /my_controller/index and /my__controller/index could both point to the same place. Which isn't
      * something we (or at least I) want.
@@ -297,7 +297,7 @@ class Application
      *
      * @throws Exception\MalformedUriException
      * @throws Exception\ControllerException
-     * @throws Exception\PageNotFound
+     * @throws Exception\PageNotFoundException
      * @return array
      */
     private function setup()
@@ -389,7 +389,7 @@ class Application
      *
      * @param BaseController $controller
      * @param string $methodName
-     * @throws Exception\PageNotFound
+     * @throws Exception\PageNotFoundException
      * @return \ReflectionMethod
      */
     public function getMethodObject(BaseController $controller, $methodName)
@@ -402,7 +402,7 @@ class Application
         }
         catch (\ReflectionException $ex)
         {
-            throw new PageNotFound(
+            throw new PageNotFoundException(
                 sprintf(
                     'The method "%s" was not found in the "%s" controller.',
                     htmlspecialchars($methodName),
@@ -419,7 +419,7 @@ class Application
      *
      * @param string $controllerName The name of the controller to create an instance of.
      * @throws Exception\ControllerException
-     * @throws Exception\PageNotFound
+     * @throws Exception\PageNotFoundException
      * @return BaseController
      */
     public function getControllerInstance($controllerName)
@@ -432,7 +432,7 @@ class Application
         catch(\Exception $ex)
         {
             // Throw a Page Not Found exception, along with the message and the previous exception.
-            throw new PageNotFound(
+            throw new PageNotFoundException(
                 sprintf(
                     'The controller "%s" could not be processed by the controller caser.',
                     htmlspecialchars($controllerName)
@@ -448,7 +448,7 @@ class Application
         // Check if the class can be loaded.
         if (!class_exists($controllerName))
         {
-            throw new PageNotFound(
+            throw new PageNotFoundException(
                 sprintf('The controller "%s" could not be autoloaded.', htmlspecialchars($controllerName))
             );
         }
