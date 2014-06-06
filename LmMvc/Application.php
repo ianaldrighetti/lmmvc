@@ -46,6 +46,12 @@ class Application
     private $headerWrapper;
 
     /**
+     * The callback for properly casing the controller name (upper, lower, camel case, custom, etc.).
+     * @var callback
+     */
+    private $controllerCaserCallback;
+
+    /**
      * Sets up the application with the namespace the controllers belong to.
      *
      * @param string $defaultController The default controller to use if none is specified in the request URI (do not
@@ -62,6 +68,43 @@ class Application
         // Set some other things.
         $this->setDefaultController($defaultController);
         $this->setNamespace($controllerNamespace);
+        $this->setControllerCaser(array('\\LmMvc\\ControllerCaser', 'camelCaseWithFirstUpper'));
+    }
+
+    /**
+     * Returns the controller caser callback.
+     *
+     * @return callable
+     */
+    public function getControllerCaser()
+    {
+        return $this->controllerCaserCallback;
+    }
+
+    /**
+     * Sets the controller casing callback. Any callback should accept one parameter, which is the controller name and
+     * it is to return the controller name properly cased.
+     *
+     * LMMVC provides a ControllerCaser class that offers the following casing methods:
+     *      - lowerCase - Lower cases the controller name.
+     *      - upperCaseFirst - The first character of the controller name is uppercased.
+     *      - camelCase - Converts the controller name into camel case, i.e. my_controller to myController.
+     *      - camelCaseWithFirstUpper - Same as camelCase, but also uppercases the first character, so my_controller
+     *                                  would become MyController.
+     *
+     * LMMVC defaults to camelCaseWithFirstUpper.
+     *
+     * @param callback $callback
+     * @throws \InvalidArgumentException
+     */
+    public function setControllerCaser($callback)
+    {
+        if (!is_callable($callback))
+        {
+            throw new \InvalidArgumentException('The argument must be callable.');
+        }
+
+        $this->controllerCaserCallback = $callback;
     }
 
     /**

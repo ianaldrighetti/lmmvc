@@ -435,5 +435,28 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($exception, $mockExceptionHandler->getException());
         $this->assertEquals($internal, $mockExceptionHandler->getInternal());
     }
+
+    /**
+     * Tests to ensure the default controller caser is set.
+     */
+    public function testDefaultControllerCaser()
+    {
+        $callback = $this->application->getControllerCaser();
+
+        $this->assertTrue(is_array($callback));
+        $this->assertCount(2, $callback);
+        $this->assertEquals('\\LmMvc\\ControllerCaser', $callback[0]);
+        $this->assertEquals('camelCaseWithFirstUpper', $callback[1]);
+    }
+
+    /**
+     * Tests to ensure that setControllerCaser throws an exception when the callback argument isn't actually a callback.
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The argument must be callable.
+     */
+    public function testSetControllerCaserException()
+    {
+        $this->application->setControllerCaser('thisdefinitelyisntcallable3290!');
+    }
 }
  
