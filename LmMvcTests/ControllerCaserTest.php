@@ -64,7 +64,8 @@ class ControllerCaserTest extends \PHPUnit_Framework_TestCase
             array('MyController', 'mycontroller'),
             array('my_controller', 'myController'),
             array('my_other_controller', 'myOtherController'),
-            array('ive__got___issues', 'iveGotIssues')
+            array('ive_got_issues', 'iveGotIssues'),
+            array('a_bc_d_e', 'aBcDE')
         );
     }
 
@@ -90,7 +91,17 @@ class ControllerCaserTest extends \PHPUnit_Framework_TestCase
             array('MyController', 'Mycontroller'),
             array('my_controller', 'MyController'),
             array('my_other_controller', 'MyOtherController'),
-            array('ive__got___issues', 'IveGotIssues')
+            array('ive_got_issues', 'IveGotIssues'),
+            array('a_bc_d_e', 'ABcDE')
         );
+    }
+
+    /**
+     * The camelCase method ought to throw an Exception if there is more than one underscore in a row.
+     * @expectedException \InvalidArgumentException
+     */
+    public function testCamelCaseException()
+    {
+        ControllerCaser::camelCase('ive__got___multiple');
     }
 }

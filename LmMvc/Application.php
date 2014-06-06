@@ -94,6 +94,15 @@ class Application
      *
      * LMMVC defaults to camelCaseWithFirstUpper.
      *
+     * A callback may throw an Exception if the controller name cannot be processed, for whatever reason. This will
+     * then cause a PageNotFound Exception to be thrown by Application. For example, camelCase and
+     * camelCaseWithFirstUpper throws an Exception if there is more than one underscore together. This is because
+     * otherwise the page /my_controller/index and /my__controller/index could both point to the same place. Which isn't
+     * something we (or at least I) want.
+     *
+     * As a final note, all controller names that will be passed to these callbacks have already been validated against
+     * the isClassMethodNameValid method. This is a regexp for function, class and method names in PHP.
+     *
      * @param callback $callback
      * @throws \InvalidArgumentException
      */
@@ -415,6 +424,25 @@ class Application
      */
     public function getControllerInstance($controllerName)
     {
+        // Do a try/catch block. That way the callbacks can tell us if the controller name is really, really bad.
+        try
+        {
+            $controllerName = call_user_func($this->getControllerCaser(), $controllerName);
+        }
+        catch(\Exception $ex)
+        {
+            // Throw a Page Not Found exception, along with the message and the previous exception.
+            throw new PageNotFound(
+                sprintf(
+                    'The controller "%s" could not be processed by the controller caser.',
+                    htmlspecialchars($controllerName)
+                ),
+                0,
+                $ex
+            );
+        }
+
+        // Alright, now form the whole name, that includes namespace as well.
         $controllerName = $this->getNamespace(). '\\'. $controllerName;
 
         // Check if the class can be loaded.
@@ -435,6 +463,7 @@ class Application
                 sprintf('The controller "%s" does not inherit BaseController.', htmlspecialchars($controllerName))
             );
         }
+
         // Otherwise, return it.
         return $controller;
     }

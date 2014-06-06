@@ -38,6 +38,7 @@ class ControllerCaser
      *
      * @param string $controllerName
      * @param bool $ucFirst
+     * @throws \InvalidArgumentException This is thrown if the controller name has more than one underscore in a row.
      * @return string
      */
     public static function camelCase($controllerName, $ucFirst = false)
@@ -60,6 +61,18 @@ class ControllerCaser
         $upperCaseNext = false;
         foreach (str_split($controllerName) as $char)
         {
+            // If we see an underscore and upperCaseNext is already true, that means we're encountering more than a
+            // single underscore in a row, which is bad!
+            if ($char == '_' && $upperCaseNext)
+            {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'The controller name "%s" has more than one underscore after another. This is not allowed.',
+                        htmlspecialchars($controllerName)
+                    )
+                );
+            }
+
             // If it's an underscore, flag that the next character is to be uppercased and continue.
             if ($char == '_')
             {
@@ -80,6 +93,7 @@ class ControllerCaser
      * of the controller name.
      *
      * @param string $controllerName
+     * @throws \InvalidArgumentException This is thrown if the controller name has more than one underscore in a row.
      * @return string
      */
     public static function camelCaseWithFirstUpper($controllerName)
