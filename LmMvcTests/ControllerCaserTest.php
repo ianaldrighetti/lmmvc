@@ -1,7 +1,7 @@
 <?php
 namespace LmMvcTests;
 
-use LmMvc\ControllerCaser;
+use LmMvc\Utility\ControllerCaser;
 
 /**
  * Class ControllerCaserTest

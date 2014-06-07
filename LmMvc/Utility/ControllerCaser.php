@@ -1,5 +1,5 @@
 <?php
-namespace LmMvc;
+namespace LmMvc\Utility;
 
 /**
  * Class ControllerCaser
@@ -7,7 +7,7 @@ namespace LmMvc;
  * The Controller Caser provides some methods for correcting the controller name to allow it to work properly with
  * autoloading.
  *
- * @package LmMvc
+ * @package LmMvc\Utility
  */
 class ControllerCaser
 {

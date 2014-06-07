@@ -3,7 +3,7 @@ namespace LmMvcTests;
 
 use LmMvc\Application;
 use LmMvc\DefaultExceptionHandler;
-use LmMvc\HeaderWrapper;
+use LmMvc\Utility\HeaderWrapper;
 use LmMvcTests\Mock\MockController;
 use LmMvcTests\Mock\MockExceptionHandler;
 
@@ -327,7 +327,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetHeaderWrapper()
     {
-        $this->assertInstanceOf('\\LmMvc\\HeaderWrapper', $this->application->getHeaderWrapper());
+        $this->assertInstanceOf('\\LmMvc\\Utility\\HeaderWrapper', $this->application->getHeaderWrapper());
     }
 
     /**
@@ -445,7 +445,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($callback));
         $this->assertCount(2, $callback);
-        $this->assertEquals('\\LmMvc\\ControllerCaser', $callback[0]);
+        $this->assertEquals('\\LmMvc\\Utility\\ControllerCaser', $callback[0]);
         $this->assertEquals('camelCaseWithFirstUpper', $callback[1]);
     }
 

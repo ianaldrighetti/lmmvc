@@ -1,12 +1,12 @@
 <?php
-namespace LmMvc;
+namespace LmMvc\Utility;
 
 /**
  * Class HeaderWrapper
  *
  * In order to test certain components of LMMVC a class that provides header-sending functionality must be utilized.
  *
- * @package LmMvc
+ * @package LmMvc\Utility
  */
 class HeaderWrapper
 {

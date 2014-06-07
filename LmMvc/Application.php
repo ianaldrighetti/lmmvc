@@ -4,6 +4,7 @@ namespace LmMvc;
 use LmMvc\Exception\ControllerException;
 use LmMvc\Exception\MalformedUriException;
 use LmMvc\Exception\PageNotFoundException;
+use LmMvc\Utility\HeaderWrapper;
 
 /**
  * Class Application
@@ -68,7 +69,7 @@ class Application
         // Set some other things.
         $this->setDefaultController($defaultController);
         $this->setNamespace($controllerNamespace);
-        $this->setControllerCaser(array('\\LmMvc\\ControllerCaser', 'camelCaseWithFirstUpper'));
+        $this->setControllerCaser(array('\\LmMvc\\Utility\\ControllerCaser', 'camelCaseWithFirstUpper'));
     }
 
     /**
