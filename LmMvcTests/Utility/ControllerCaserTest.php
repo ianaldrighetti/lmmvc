@@ -1,11 +1,11 @@
 <?php
-namespace LmMvcTests;
+namespace LmMvcTests\Utility;
 
 use LmMvc\Utility\ControllerCaser;
 
 /**
  * Class ControllerCaserTest
- * @package LmMvcTests
+ * @package LmMvcTests\Utility
  */
 class ControllerCaserTest extends \PHPUnit_Framework_TestCase
 {

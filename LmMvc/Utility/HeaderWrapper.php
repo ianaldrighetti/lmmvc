@@ -216,6 +216,8 @@ class HeaderWrapper
 
     /**
      * Sends all the headers that have been added.
+     *
+     * @throws \HttpHeaderException when HTTP headers have already been sent.
      */
     public function send()
     {
@@ -226,6 +228,12 @@ class HeaderWrapper
         if (!$this->getEnabled())
         {
             return;
+        }
+
+        // If the headers are already sent then we can't do this.
+        if (headers_sent())
+        {
+            throw new \HttpHeaderException('HTTP headers have already been sent.');
         }
 
         // Now we send the HTTP header.
