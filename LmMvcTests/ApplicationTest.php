@@ -561,5 +561,42 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             MockController::getMethodParameters()
         );
     }
+
+    /**
+     * Tests the handling of internal exceptions.
+     */
+    public function testRunShowExceptionPageInternal()
+    {
+        $mockExceptionHandler = new MockExceptionHandler();
+        $this->application->setExceptionHandler($mockExceptionHandler);
+        $this->application->setRequestUri('/badcontroller/badmethodtoo');
+
+        // Run it, this should cause an internal Exception. It should be caught, of course.
+        $this->application->run();
+
+        // Make sure our exception handler was invoked.
+        $this->assertNotNull($mockExceptionHandler->getException());
+        $this->assertInstanceOf('\\Exception', $mockExceptionHandler->getException());
+        $this->assertTrue($mockExceptionHandler->getInternal());
+    }
+
+    /**
+     * Tests the handling of external exceptions.
+     */
+    public function testRunShowExceptionPageExternal()
+    {
+        $mockExceptionHandler = new MockExceptionHandler();
+        $this->application->setExceptionHandler($mockExceptionHandler);
+        $this->application->setNamespace('\\LmMvcTests\\Mock');
+        $this->application->setRequestUri('/mock_controller/throwexception');
+
+        // Run it, this should cause an internal Exception. It should be caught, of course.
+        $this->application->run();
+
+        // Make sure our exception handler was invoked.
+        $this->assertNotNull($mockExceptionHandler->getException());
+        $this->assertInstanceOf('\\Exception', $mockExceptionHandler->getException());
+        $this->assertFalse($mockExceptionHandler->getInternal());
+    }
 }
  

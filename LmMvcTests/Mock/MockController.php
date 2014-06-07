@@ -70,4 +70,14 @@ class MockController implements BaseController
             'withDefault' => $withDefault
         );
     }
+
+    /**
+     * A page that throws an exception...
+     *
+     * @throws \Exception
+     */
+    public function throwException()
+    {
+        throw new \Exception('Just an Exception...');
+    }
 } 

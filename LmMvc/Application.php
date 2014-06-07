@@ -262,6 +262,9 @@ class Application
         {
             // Show the exception page. This, of course, can be set to a custom handler.
             $this->showExceptionPage($ex, true);
+
+            // Don't continue on, please!
+            return;
         }
 
         try
