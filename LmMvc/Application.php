@@ -237,7 +237,9 @@ class Application
     }
 
     /**
-     * The default controller to use when the request URI doesn't specify one.
+     * The default controller to use when the request URI doesn't specify one. This is not the controller name (the
+     * actual class name, that is), but the URL that would be used to access the controller (with default controller
+     * casing, DefaultPage would be default_page).
      *
      * @param string $defaultController
      */
@@ -461,7 +463,7 @@ class Application
         $controller = new $controllerName();
 
         // It must extend BaseController.
-        if (!is_subclass_of($controller, '\\LmMvc\\BaseController'))
+        if (!in_array('LmMvc\\BaseController', class_implements($controller)))
         {
             throw new ControllerException(
                 sprintf('The controller "%s" does not inherit BaseController.', htmlspecialchars($controllerName))

@@ -32,8 +32,8 @@ $application->setExceptionHandler(new \LmMvc\DefaultExceptionHandler());
 $application->setNamespace('\\Application\\Controller');
 
 // If no controller name can be determined from the URL, we will use the default:
-// (do not include the namespace of the controller -- it will not work! it must belong to the namespace set above)
-$application->setDefaultController('DefaultPage');
+// (do not use the name of the controller class, but the name that would be used in the URL)
+$application->setDefaultController('default_page');
 
 // There isn't anything else to do, so have LMMVC route the request.
 $application->run();

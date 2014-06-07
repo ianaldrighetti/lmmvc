@@ -95,12 +95,12 @@ This will make LMMVC try to autoload a controller by the name of my_controller (
 
 ##### setDefaultController
 
-If no cotroller name can be determined from the request URI (i.e. ```/index``` or ```/somepage```), LMMVC must be told what controller to use by default, like so:
+If no controller name can be determined from the request URI (i.e. ```/index``` or ```/somepage```), LMMVC must be told what controller to use by default, like so:
 ```php
-$application->setDefaultController('DefaultPage');
+$application->setDefaultController('default_page');
 ```
 
-You cannot include the entire class path (the namespace, that is) when setting this, as the default controller must also reside with the rest of the controllers as well.
+Note, as above, that this is not the actual name of the controller in it's implementation, but the controller name that would appear in the URL based on the controller casing being used. For example, with default controller casing ```DefaultPage``` would be specified as ```default_page```.
 
 ##### run
 
