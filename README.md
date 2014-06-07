@@ -18,7 +18,7 @@ With LMMVC's default setup, this would load a controller with a class name of Co
 You can get the latest on our release page, or you can clone it, or even use composer. To use this package via composer, add this to your require:
 
 ```
-  "ianaldrighetti/lmmvc": "dev-master"
+  "ianaldrighetti/lmmvc": "~1.0.x"
 ```
 
 ### Basic Setup
