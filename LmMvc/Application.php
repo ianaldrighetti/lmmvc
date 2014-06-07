@@ -266,7 +266,7 @@ class Application
 
         try
         {
-            call_user_func(array($app['controller'], $app['method']), $app['arguments']);
+            call_user_func_array(array($app['controller'], $app['method']), $app['arguments']);
         }
         catch (\Exception $ex)
         {

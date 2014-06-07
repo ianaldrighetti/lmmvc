@@ -509,5 +509,57 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->application->setNamespace('\\LmMvcTests\\Mock');
         $this->application->getControllerInstance('MockExceptionHandler');
     }
+
+    /**
+     * Tests the run method working correctly.
+     */
+    public function testRun()
+    {
+        $headerWrapper = new HeaderWrapper();
+        $this->application->setHeaderWrapper($headerWrapper);
+        $this->application->setNamespace('\\LmMvcTests\Mock');
+        $this->application->setRequestUri('/mock_controller/index');
+        $this->application->run();
+
+        // Make sure no redirect occurred.
+        $this->assertFalse($headerWrapper->getSent());
+
+        // Make sure the index was invoked.
+        $this->assertTrue(MockController::getIndexInvoked());
+    }
+
+    /**
+     * Tests the run method working correctly and passing parameters to the method.
+     */
+    public function testRunWithParameters()
+    {
+        $userId = mt_rand(1, 100);
+        $data = array();
+        $withDefault = mt_rand(999, 2000);
+
+        $headerWrapper = new HeaderWrapper();
+        $this->application->setHeaderWrapper($headerWrapper);
+        $this->application->setNamespace('\\LmMvcTests\Mock');
+        $this->application->setRequestUri('/mock_controller/methodwithparams'.
+            '?'. http_build_query(array(
+                    'userId' => $userId,
+                    'withDefault' => $withDefault
+                )));
+        $this->application->run();
+
+        // Make sure no redirect occurred.
+        $this->assertFalse($headerWrapper->getSent());
+
+        // Make sure the index was invoked.
+        $this->assertNotNull(MockController::getMethodParameters());
+
+        $this->assertEquals(array(
+                'userId' => $userId,
+                'data' => $data,
+                'withDefault' => $withDefault,
+            ),
+            MockController::getMethodParameters()
+        );
+    }
 }
  
