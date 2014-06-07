@@ -24,6 +24,21 @@ You can get the latest on our release page, or you can clone it, or even use com
 ### Basic Setup
 For a basic setup you can checkout the ```/example/``` directory in the repository. There it has an example .htaccess, example index.php and example controller. The example index.php goes over the basics of the methods that are useful to someone setting up their application. However, for more detailed documentation, you can look below.
 
+### Method Arguments
+A small feature in LMMVC is that methods in controllers can specify arguments, these arguments would then be fetched from ```$_GET```, if available.
+
+For example, a method like so:
+```php
+public function args($userId, $userName = 'you', array $data)
+{
+  // *do awesome stuff*
+}
+```
+
+The above would be passed ```$_GET['userId']```, ```$_GET['userName']``` and ```$_GET['data']```. In the event that these are not found and the parameter sets to default, it will be passed null. If any variable is not found in ```$_GET``` and it does have a default, the default will be passed.
+
+Arguments may be type hinted with an array, and if ```$_GET['data']``` in the example wasn't found, an empty array would be supplied. However, if ```$_GET['data']``` was not actually an array, LMMVC would convert it to an array (with the ```$data[0]``` entry set to ```$_GET['data']```).
+
 ### Application Documentation
 The following is documentation for every method in the Application class.
 
