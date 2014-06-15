@@ -391,7 +391,8 @@ class Application
     }
 
     /**
-     * Returns a ReflectionMethod if the method exists in the controller.
+     * Returns a ReflectionMethod if the method exists (and is accessible [it must be a public method, it cannot be
+     * private, protected or static]) in the controller.
      *
      * @param BaseController $controller
      * @param string $methodName
@@ -402,19 +403,21 @@ class Application
     {
         $reflector = new \ReflectionClass($controller);
 
+        $methodObject = null;
         try
         {
             $methodObject = $reflector->getMethod($methodName);
         }
         catch (\ReflectionException $ex)
         {
-            throw new PageNotFoundException(
-                sprintf(
-                    'The method "%s" was not found in the "%s" controller.',
-                    htmlspecialchars($methodName),
-                    htmlspecialchars(get_class($controller))
-                )
-            );
+            $this->throwPageNotFoundMethodException($controller, $methodName);
+        }
+
+        // If the method is not public (or if it is static), we're going to throw a PageNotFoundException as well.
+        if (!$methodObject->isPublic() || $methodObject->isStatic())
+        {
+            // We're going to pretend it doesn't exist at all.
+            $this->throwPageNotFoundMethodException($controller, $methodName);
         }
 
         return $methodObject;
@@ -704,5 +707,24 @@ class Application
 
         // Remove the /.
         return substr($methodName, 0, strpos($methodName, '/'));
+    }
+
+    /**
+     * Throws a PageNotFoundException with a message indicating that the method does not exist within the specified
+     * controller.
+     *
+     * @param BaseController $controller
+     * @param string $methodName
+     * @throws Exception\PageNotFoundException
+     */
+    private function throwPageNotFoundMethodException(BaseController $controller, $methodName)
+    {
+        throw new PageNotFoundException(
+            sprintf(
+                'The method "%s" was not found in the "%s" controller.',
+                htmlspecialchars($methodName),
+                htmlspecialchars(get_class($controller))
+            )
+        );
     }
 }
