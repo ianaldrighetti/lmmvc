@@ -80,4 +80,28 @@ class MockController implements BaseController
     {
         throw new \Exception('Just an Exception...');
     }
+
+    /**
+     * A private method for testing.
+     */
+    private function privateMethod()
+    {
+        // This is a private method and should cause LMMVC to throw a PageNotFoundException.
+    }
+
+    /**
+     * A protected method for testing.
+     */
+    protected function protectedMethod()
+    {
+        // The same goes for protected methods (should throw PageNotFoundException).
+    }
+
+    /**
+     * A public static method for testing.
+     */
+    public static function staticMethod()
+    {
+        // Just like with private and protected method, static methods shouldn't be callable either.
+    }
 } 

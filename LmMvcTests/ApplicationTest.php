@@ -598,5 +598,38 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\\Exception', $mockExceptionHandler->getException());
         $this->assertFalse($mockExceptionHandler->getInternal());
     }
+
+    /**
+     * Tests to ensure that a PageNotFoundException is thrown when a method that is not accessible (not public) is
+     * attempted to be accessed.
+     *
+     * @param string $methodName The name of the method in the MockController.
+     * @dataProvider notAccessibleMethodProvider
+     */
+    public function testNotAccessibleMethodTypes($methodName)
+    {
+        $mockController = new MockController();
+
+        // We're expecting a PageNotFoundException with a specific message.
+        $this->setExpectedException(
+            '\LmMvc\Exception\PageNotFoundException',
+            sprintf('The method "%s" was not found in the "%s" controller.', $methodName, get_class($mockController))
+        );
+
+        // This should throw an Exception.
+        $this->application->getMethodObject($mockController, $methodName);
+    }
+
+    /**
+     * @return array
+     */
+    public function notAccessibleMethodProvider()
+    {
+        return array(
+            array('privateMethod'),
+            array('protectedMethod'),
+            array('staticMethod')
+        );
+    }
 }
  
