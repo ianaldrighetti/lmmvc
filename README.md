@@ -24,6 +24,40 @@ You can get the latest on our release page, or you can clone it, or even use com
 ### Basic Setup
 For a basic setup you can checkout the ```/example/``` directory in the repository. There it has an example .htaccess, example index.php and example controller. The example index.php goes over the basics of the methods that are useful to someone setting up their application. However, for more detailed documentation, you can look below.
 
+### Usage
+All you need to do is create a class that implements the \LmMvc\BaseController interface, like so:
+```php
+// All your controllers must belong to the same namespace (at the same level).
+// Then you tell LMMVC which namespace to look at using the setNamespace method.
+namespace YourControllerNamespace;
+
+use LmMvc\BaseController;
+
+class MyController implements BaseController
+{
+  /**
+   * This is the index of the controller.
+   */
+  public function index()
+  {
+  
+  }
+  
+  /**
+   * This would be accessible through {your_url}/my_controller/another_page.
+   */
+  public function another_page()
+  {
+  
+  }
+}
+```
+
+That's your basic controller right there.
+
+**Note:** LMMVC will not allow users to access private, protected or static methods. Any method that is to be accessible by the outside world *must* be marked as public.
+
+
 ### Method Arguments
 A small feature in LMMVC is that methods in controllers can specify arguments, these arguments would then be fetched from ```$_GET```, if available.
 
